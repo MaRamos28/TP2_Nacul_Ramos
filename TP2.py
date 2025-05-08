@@ -12,7 +12,7 @@ def get_grid_coords(h, w, dot_size, angle_deg):
     num_y = diag // dot_size + 3
 
     # alinear el centro de la grilla con el centro de la imagen
-    offset_x = cx - (num_x * dot_size) / 2
+    offset_x = cx - (num_x * dot_size) / 2 #FASDNALSDNASLASD
     offset_y = cy - (num_y * dot_size) / 2
 
     # recorrer la grilla y calcular las posiciones (geometría 👻) 

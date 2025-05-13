@@ -182,6 +182,9 @@ if __name__=="__main__":
             else:
                 try:
                     cant_colores = int(cant_colores)
+                    if cant_colores < 0:
+                        print("La cantidad de colores debe postiva")
+                        continue
                     break
                 except:
                     print("Ingrese un numero valido")

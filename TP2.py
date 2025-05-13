@@ -136,7 +136,11 @@ if __name__=="__main__":
             else:
                 try:
                     tamaño_puntos = int (tamaño_puntos)
-                    break
+                    if tamaño_puntos <= 0:
+                        print("El tamaño de puntos debe ser mayor a 0")
+                        continue
+                    else:
+                        break
                 except:
                     print("Ingrese un numero valido")
         while True:
@@ -147,17 +151,30 @@ if __name__=="__main__":
             else:
                 try:
                     angulo_rotacion_rojo = int(angulo_rotacion_rojo)
-                    break
+                    if angulo_rotacion_rojo <= 0:
+                        print("El angulo de rotacion debe ser mayor a 0")
+                        continue
+                    else:
+                        break
                 except:
                     print("Ingrese un numero valido")
                     
             
-            
-        angulo_rotacion_verde = input("Ingrese el angulo de rotación verde: ")
-        if angulo_rotacion_verde == "":
-            angulo_rotacion_verde = 45
-        else:
-            angulo_rotacion_verde = int(angulo_rotacion_verde)
+        while True:    
+            angulo_rotacion_verde = input("Ingrese el angulo de rotación verde: ")
+            if angulo_rotacion_verde == "":
+                angulo_rotacion_verde = 45
+                break
+            else:
+                try:
+                    angulo_rotacion_verde = int(angulo_rotacion_verde)
+                    if angulo_rotacion_verde <= 0:
+                        print("El angulo de rotacion debe ser mayor a 0")
+                        continue
+                    else:
+                        break
+                except:
+                    print("Ingrese un numero valido")
         
         while True:   
             angulo_rotacion_azul = input("Ingrese el angulo de rotación azul: ")
@@ -167,9 +184,14 @@ if __name__=="__main__":
             else: 
                 try:
                     angulo_rotacion_azul = int(angulo_rotacion_azul)
-                    break
+                    if angulo_rotacion_azul < 0:
+                        print("El angulo de rotacion debe ser mayor a 0")
+                        continue
+                    else:
+                        break
                 except:
                     print("Ingrese un numero valido")
+                    
         imagen_modificada = efecto_Halftone(imagen, tamaño_puntos, angulo_rotacion_rojo, angulo_rotacion_verde , angulo_rotacion_azul)
         
     elif metodo == "kmeans":
@@ -182,8 +204,8 @@ if __name__=="__main__":
             else:
                 try:
                     cant_colores = int(cant_colores)
-                    if cant_colores < 0:
-                        print("La cantidad de colores debe postiva")
+                    if cant_colores <= 0:
+                        print("La cantidad de colores debe ser mayor a 0")
                         continue
                     break
                 except:

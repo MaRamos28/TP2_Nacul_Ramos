@@ -28,7 +28,16 @@ def get_grid_coords(h, w, dot_size, angle_deg):
                 positions.append((ix, iy))
     return positions
 
-def cargarImg(ruta_imagen):
+def cargarImg(ruta_imagen) -> tuple:
+    """
+    Funcion utilizada para cargar la imagen y verificar que se haya cargado correctamente.
+    Args:
+        ruta_imagen (str): Ruta de la imagen a cargar
+    Returns:
+        estado (int): Estado de la carga de la imagen (0 si se cargo correctamente, 1 si hubo un error)
+        img (PIL.Image): Imagen cargada
+    """
+    
     try:
         img = Image.open(ruta_imagen).convert("RGB")
     except:
@@ -36,66 +45,101 @@ def cargarImg(ruta_imagen):
         return 1, None
     return 0 , img
 
-def dibujar_circulo(matriz, centro_x, centro_y, radio):
-    alto, ancho = matriz.shape
+def dibujar_circulo(matriz: np.array, centro_x: int, centro_y: int, radio: float):
+    """
+    Funcion utilizada en el metodo halftone para generar el circulo de radio "n" lleno de "0" en la matriz de un color en especifico.
+
+    Args:
+        matriz (np.array): matriz del color en el que se va a dibujar el circulo
+        centro_x (int): Valor x del centro del circulo
+        centro_y (int): Valor y del centro del circulo
+        radio (float): Radio del circulo
+    """
+    
+    alto, ancho = matriz.shape # Obtener dimensiones de la matriz
+    
     for y in range(int(centro_y - radio), int(centro_y + radio) + 1):
         for x in range(int(centro_x - radio), int(centro_x + radio) + 1):
-            if 0 <= x < ancho and 0 <= y < alto:
-                if (x - centro_x)**2 + (y - centro_y)**2 <= radio**2:
-                    matriz[y, x] = 0
+            if 0 <= x < ancho and 0 <= y < alto: # Verificar que el pixel este dentro de la matriz
+                if (x - centro_x)**2 + (y - centro_y)**2 <= radio**2: # Verificar que el pixel este dentro del circulo
+                    matriz[y, x] = 0 # Asignar el valor del pixel a 0
 
-def efecto_Halftone(img, tam_puntos, ang_rot_red, ang_rot_green, ang_rot_blue):
-    ancho , alto = img.size
+def efecto_Halftone(img, tam_puntos:int, ang_rot_red:int, ang_rot_green: int, ang_rot_blue: int)-> Image:
+    '''
+    Funcion utilizada para aplicar el efecto halftone a la imagen.
+    Args:
+        img (PIL.Image): Imagen a la que se le va a aplicar el efecto halftone
+        tam_puntos (int): Tamaño de los puntos del efecto halftone
+        ang_rot_red (int): Angulo de rotacion del color rojo
+        ang_rot_green (int): Angulo de rotacion del color verde
+        ang_rot_blue (int): Angulo de rotacion del color azul
     
-    pixels = np.array(img)
+    returns:
+        imagen_efecto_halftone (PIL.Image): Imagen con el efecto halftone aplicado
+    '''
+    
+    ancho , alto = img.size # Obtener dimensiones de la imagen
+    
+    pixels = np.array(img) # Convertir la imagen a un array de numpy
 
-    rojo = pixels[:, :, 0]   # Canal R
-    verde = pixels[:, :, 1]  # Canal G
-    azul = pixels[:, :, 2]   # Canal B
+    rojo = pixels[:, :, 0]   # Separar canal R
+    verde = pixels[:, :, 1]  # Separar canal G
+    azul = pixels[:, :, 2]   # Separar canal B
     
-    array_full_rojo = np.full((alto, ancho), 255)
-    array_full_verde = np.full((alto, ancho), 255)
-    array_full_azul = np.full((alto, ancho), 255)    
+    array_full_rojo = np.full((alto, ancho), 255) # Crear una matriz llena de 255 para el canal rojo
+    array_full_verde = np.full((alto, ancho), 255) # Crear una matriz llena de 255 para el canal rojo
+    array_full_azul = np.full((alto, ancho), 255) # Crear una matriz llena de 255 para el canal rojo
         
-    puntos_centrados_rojo = get_grid_coords(alto, ancho, tam_puntos, ang_rot_red)
-    puntos_centrados_verde = get_grid_coords(alto, ancho, tam_puntos, ang_rot_green)
-    puntos_centrados_azul = get_grid_coords(alto, ancho, tam_puntos, ang_rot_blue)
-        
+    puntos_centrados_rojo = get_grid_coords(alto, ancho, tam_puntos, ang_rot_red) # Obtener las coordenadas de los puntos para el canal rojo
+    puntos_centrados_verde = get_grid_coords(alto, ancho, tam_puntos, ang_rot_green) # Obtener las coordenadas de los puntos para el canal verde
+    puntos_centrados_azul = get_grid_coords(alto, ancho, tam_puntos, ang_rot_blue) # Obtener las coordenadas de los puntos para el canal azul
+       
+    # Dibujar los circulos en la matriz de cada color
+    # Rojo
     for coords_rojo in puntos_centrados_rojo:
         x , y = coords_rojo
         intensidad = rojo[y, x]
         radio = (1 - (intensidad / 255)) * tam_puntos * 0.7
         dibujar_circulo(array_full_rojo, x, y, radio)
-    
+
+    # Verde
     for coords_verde in puntos_centrados_verde:
         x , y = coords_verde
         intensidad = verde[y, x]
         radio = (1 - (intensidad / 255)) * tam_puntos * 0.7
         dibujar_circulo(array_full_verde, x, y, radio)
         
+    # Azul
     for coords_azul in puntos_centrados_azul:
         x, y = coords_azul
         intensidad = azul[y, x]
         radio = (1 - (intensidad / 255)) * tam_puntos * 0.7
         dibujar_circulo(array_full_azul, x, y, radio)
     
+    # Junta las 3 arrays de colores en una sola
     array_final = np.stack((array_full_rojo, array_full_verde, array_full_azul), axis=2)
 
+    # Convierte el array a una imagen
     imagen_efecto_halftone = Image.fromarray(array_final.astype(np.uint8))
     
     return imagen_efecto_halftone
 
-def k_means(img, cant_colores):
+def k_means(img, cant_colores:int)-> Image:
+    '''
+    Funcion utilizada para aplicar el efecto k-means a la imagen.
+    Args:
+        img (PIL.Image): Imagen a la que se le va a aplicar el efecto k-means
+        cant_colores (int): Cantidad de colores deseados
+    Returns:
+        imagen_efecto_k_means (PIL.Image): Imagen con el efecto k-means aplicado
+    '''
     pixels = np.array(img)
     lista_pixeles = pixels.reshape(-1, 3)
     centroides = lista_pixeles[np.random.choice(len(lista_pixeles), cant_colores , replace = False)]
     
     for _ in range(100):  #Cantidad de iteraciones para terminar la cuantizacion K_means
         etiquetas = asignar_clusters(lista_pixeles, centroides)
-        nuevos_centroides = np.array([
-            lista_pixeles[etiquetas == i].mean(axis=0) if np.any(etiquetas == i) else centroides[i]
-            for i in range(cant_colores)
-        ])
+        nuevos_centroides = np.array([lista_pixeles[etiquetas == i].mean(axis=0) if np.any(etiquetas == i) else centroides[i] for i in range(cant_colores)])
         if np.allclose(centroides, nuevos_centroides):
             break
         centroides = nuevos_centroides
@@ -225,6 +269,8 @@ if __name__=="__main__":
 
             # Pegar las imágenes
             imagen_combinada.paste(imagen, (0, 0))
+        
+            # Pego la imagen modificada a la derecha de la original con una separación de 10 píxeles
             imagen_combinada.paste(imagen_modificada, (imagen.width+10, 0))
 
             # Mostrar la imagen combinada

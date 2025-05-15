@@ -214,35 +214,26 @@ if __name__=="__main__":
         imagen_modificada = k_means(imagen , cant_colores)
     
     while True:
-        while True:
-            ver_imagen = input("Quiere ver la imagen original? (0 - No / 1 - Si): ")
-            try:
-                ver_imagen = int(ver_imagen)
-                break
-            except:
-                print("Ingrese un numero valido")
-        
-        if ver_imagen == 1:
+        respuesta = input("¿Que quiere hacer? \n 1. Mostrar imagen modificada\n 2. Mostrar ambas imagenes\n 3. Guardar imagen modificada \n")
+        if respuesta == "1":
+            imagen_modificada.show()
             break
-        elif ver_imagen == 0:
-            break
-        else:
-            print("El numero no esta dentro de las opciones")    
+        elif respuesta == "2":            
+            # Crear una nueva imagen donde se van a pegar las dos imágenes
+            # La imagen combinada tendrá el doble de ancho que la imagen original para que entren ambas imagenes
+            imagen_combinada = Image.new("RGB", (imagen.width*2+10, imagen.height))
+
+            # Pegar las imágenes
+            imagen_combinada.paste(imagen, (0, 0))
+            imagen_combinada.paste(imagen_modificada, (imagen.width+10, 0))
+
+            # Mostrar la imagen combinada
+            imagen_combinada.show()
             
-    while True:
-        opciones_imagen = int(input("Que quiere hacer con la imagen modificada? (0 - Visualizarla / 1 - Guardarla / 2 - Visualizarla y guardarla): "))
-        if opciones_imagen == 0:
-            imagen_modificada.show()
             break
-        elif opciones_imagen == 1:
+        elif respuesta == "3":
             imagen_modificada.save(nombrefinal)
-            break
-        elif opciones_imagen == 2:
-            imagen_modificada.show()
-            imagen_modificada.save(nombrefinal)
+            print("Imagen guardada como: ", nombrefinal)
             break
         else:
-            print("Opcion invalida")
-        
-    if ver_imagen == 1:
-        imagen.show()
+            print("Ingrese una opcion valida")
